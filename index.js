@@ -31,7 +31,6 @@ app.get('/', (req, res) =>{
 app.get('/products', (req, res) =>{
     new sql.Request().query("SELECT product_id, product_name, category_id, brand_id FROM production.products", (err, result) =>{
         if (err) {
-            res.send(err)
             console.log("Error occured in query", err);
         }else{
             res.json(result.recordset);
@@ -53,9 +52,24 @@ app.get('/products/:productId', (req, res) =>{
     });
 });
 
+//get all orders including the items that are associated with the particular order
+app.get('/orders', (req, res) =>{
+    new sql.Request().query(
+    `SELECT  sales.orders.order_id,
+             sales.order_items.item_id
+    FROM sales.orders
+    LEFT JOIN sales.order_items 
+    ON sales.orders.order_id = sales.order_items.order_id`, (err, result) =>{
+        if (err) {
+            console.log("Error occured in query", err);
+        } else {
+            res.json(result.recordset);
+        };
+    });
+});
 
 //get orders of a customer
-app.get('/customer/orders/:orderId', (req, res) =>{
+app.get('/orders/customer/:orderId', (req, res) =>{
     let requestedId = req.params.orderId;
     new sql.Request().query(
     `SELECT sales.orders.customer_id,
@@ -72,6 +86,8 @@ app.get('/customer/orders/:orderId', (req, res) =>{
         };
     });
 });
+
+
 
 //get orders of staff sale
 app.get('/orders/staffs/:staffId', (req, res) =>{
@@ -91,6 +107,3 @@ app.listen(port, ()=>{
     console.log(`Server listening to port: ${port}`);
 });
 
-
-users = [["ds", "sdf"], ["dss"]]
-console.log(users[0])
