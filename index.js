@@ -57,7 +57,14 @@ app.get('/products/:productId', (req, res) =>{
 //get orders of a customer
 app.get('/orders/:orderId', (req, res) =>{
     let requestedId = req.params.orderId;
-    new sql.Request().query(`SELECT * FROM sales.orders WHERE customer_id = ${requestedId}`, (err, result) =>{
+    new sql.Request().query(
+    `SELECT sales.orders.customer_id,
+            sales.orders.order_id,
+            sales.order_items.product_id
+    FROM sales.orders
+    LEFT JOIN sales.order_items 
+    ON sales.orders.order_id = sales.order_items.order_id
+    WHERE customer_id = ${requestedId}`, (err, result) =>{
         if (err) {
             console.log("Error occured in query", err);
         } else {
@@ -67,7 +74,7 @@ app.get('/orders/:orderId', (req, res) =>{
 });
 
 //get orders of staff sale
-app.get('/staffs/:staffId', (req, res) =>{
+app.get('orders/staffs/:staffId', (req, res) =>{
     let requestedId = req.params.staffId;
     new sql.Request().query(`SELECT * FROM sales.orders WHERE staff_id = ${requestedId}`, (err, result) =>{
         if (err) {
