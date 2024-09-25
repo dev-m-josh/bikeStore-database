@@ -49,7 +49,6 @@ app.get('/products/:productId', (req, res) =>{
             console.log("Error occured in query", err);
         } else {
             res.json(result.recordset[0]);
-            console.log(result);
         };
     });
 });
