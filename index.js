@@ -55,7 +55,7 @@ app.get('/products/:productId', (req, res) =>{
 
 
 //get orders of a customer
-app.get('/orders/:orderId', (req, res) =>{
+app.get('/customer/orders/:orderId', (req, res) =>{
     let requestedId = req.params.orderId;
     new sql.Request().query(
     `SELECT sales.orders.customer_id,
@@ -74,7 +74,7 @@ app.get('/orders/:orderId', (req, res) =>{
 });
 
 //get orders of staff sale
-app.get('orders/staffs/:staffId', (req, res) =>{
+app.get('/orders/staffs/:staffId', (req, res) =>{
     let requestedId = req.params.staffId;
     new sql.Request().query(`SELECT * FROM sales.orders WHERE staff_id = ${requestedId}`, (err, result) =>{
         if (err) {
