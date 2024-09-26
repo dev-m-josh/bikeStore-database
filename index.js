@@ -55,11 +55,12 @@ app.get('/products/:productId', (req, res) =>{
 //get all orders including the items that are associated with the particular order
 app.get('/orders', (req, res) =>{
     new sql.Request().query(
-    `SELECT  sales.orders.order_id,
-             sales.order_items.item_id
-    FROM sales.orders
-    LEFT JOIN sales.order_items 
-    ON sales.orders.order_id = sales.order_items.order_id`, (err, result) =>{
+    `SELECT order_id, 
+       customer_id, 
+       staff_id, 
+       store_id, 
+       (SELECT order_id, item_id, product_id FROM sales.order_items WHERE order_id = orders.order_id FOR JSON PATH ) AS order_items
+    FROM sales.orders orders;`, (err, result) =>{
         if (err) {
             console.log("Error occured in query", err);
         } else {
@@ -92,7 +93,13 @@ app.get('/orders/customer/:orderId', (req, res) =>{
 //get orders of staff sale
 app.get('/orders/staffs/:staffId', (req, res) =>{
     let requestedId = req.params.staffId;
-    new sql.Request().query(`SELECT * FROM sales.orders WHERE staff_id = ${requestedId}`, (err, result) =>{
+    new sql.Request().query(
+    `SELECT staff_id,
+        first_name,
+        last_name,
+        email,
+       (SELECT staff_id, order_id, customer_id, order_date, store_id  FROM sales.orders WHERE staff_id = staff.staff_id FOR JSON PATH) staff_orders
+    FROM sales.staffs staff`, (err, result) =>{
         if (err) {
             console.log("Error occured in query", err);
         } else {
