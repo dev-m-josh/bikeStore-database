@@ -73,13 +73,14 @@ app.get('/orders', (req, res) =>{
 app.get('/orders/customer/:orderId', (req, res) =>{
     let requestedId = req.params.orderId;
     new sql.Request().query(
-    `SELECT sales.orders.customer_id,
-            sales.orders.order_id,
-            sales.order_items.product_id
-    FROM sales.orders
-    LEFT JOIN sales.order_items 
-    ON sales.orders.order_id = sales.order_items.order_id
-    WHERE customer_id = ${requestedId}`, (err, result) =>{
+    `SELECT customer_id,
+        order_id,
+        order_date,
+        store_id,
+        staff_id,
+        (SELECT item_id  FROM sales.order_items WHERE order_id = ords.order_id FOR JSON PATH) AS order_items
+ FROM sales.orders ords
+ WHERE customer_id = ${requestedId}`, (err, result) =>{
         if (err) {
             console.log("Error occured in query", err);
         } else {
