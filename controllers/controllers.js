@@ -38,7 +38,7 @@ function getAllOrdersAndItems(req, res) {
 
     new sql.Request().query(
         `SELECT order_id, 
-           staff_id, 
+           staff_id,
            (SELECT order_id, item_id, product_id FROM sales.order_items WHERE order_id = orders.order_id FOR JSON PATH ) AS order_items
         FROM sales.orders orders ORDER BY order_id OFFSET ${currentPage} ROWS FETCH NEXT ${pageSize} ROWS ONLY;`, (err, result) =>{
             if (err) {
@@ -67,19 +67,27 @@ WHERE customer_id = ${requestedId}`, (err, result) =>{
         } else {
             res.json(result.recordset);
         };
-    })
+    });
 };
 
+
 //get orders of staff sale
+//--orders
+// product name, price, quantity
 function getStaffOrders(req, res) {
 let requestedId = req.params.staffId;
-console.log(requestedId)
+
 let {page, pageSize} = req.query;
 let offset = (Number(page) - 1) * Number(pageSize);
 
     new sql.Request().query(
     `SELECT
-       (SELECT order_id  FROM sales.orders WHERE staff_id = staff.staff_id ORDER BY order_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY  FOR JSON PATH) orders FROM sales.staffs staff WHERE staff_id = ${requestedId}`, (err, result)=>{
+    ( SELECT order_id, item_id, product_id, list_price, quantity,
+        ( SELECT product_name FROM production.products WHERE product_id = items.product_id) product_name
+ FROM sales.order_items items
+ WHERE order_id = SO.order_id  FOR JSON PATH) orders
+FROM sales.orders SO 
+WHERE staff_id = ${requestedId} ORDER BY order_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, result)=>{
         if (err) {
             console.log("Error occured in query", err);
         } else {
