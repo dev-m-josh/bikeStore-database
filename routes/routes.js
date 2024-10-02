@@ -1,11 +1,5 @@
 const router = require("express").Router();
 
-
-
-
-
-
-
 const { getAllProducts, getProductById, getAllOrdersAndItems, getCustomerOrdersById, getStaffOrders } = require("../controllers/controllers");
 
 

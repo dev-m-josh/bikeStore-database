@@ -29,7 +29,6 @@ sql.connect(config, err =>{
     console.log("Connection Successful!")
 });
 
-
 //server listening
 const port = 4000;
 app.listen(port, ()=>{
