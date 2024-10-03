@@ -55,11 +55,9 @@ function getAllOrdersAndItems(req, res) {
 function getCustomerOrdersById(req, res) {
     let requestedId = req.params.customerId;
     new sql.Request().query(
-    `SELECT
-     ( SELECT  product_id, list_price, quantity, item_id,
-        ( SELECT product_name FROM production.products WHERE product_id = items.product_id ) product_name
-FROM sales.order_items items
-WHERE order_id = SO.order_id FOR JSON PATH) orders
+    `SELECT order_id, order_status, order_date, shipped_date, store_id,
+    (SELECT OT.order_id, OT.item_id, OT.quantity, prod.product_name, OT.list_price FROM sales.order_items OT
+INNER JOIN production.products prod ON OT.product_id = prod.product_id WHERE OT.order_id = SO.order_id FOR JSON PATH) orders
 FROM sales.orders SO
 WHERE customer_id = ${requestedId}`, (err, result) =>{
         if (err) {
@@ -81,12 +79,10 @@ let {page, pageSize} = req.query;
 let offset = (Number(page) - 1) * Number(pageSize);
 
     new sql.Request().query(
-    `SELECT
-    ( SELECT order_id, item_id, product_id, list_price, quantity,
-        ( SELECT product_name FROM production.products WHERE product_id = items.product_id) product_name
- FROM sales.order_items items
- WHERE order_id = SO.order_id  FOR JSON PATH) orders
-FROM sales.orders SO 
+    `SELECT order_id, order_date, customer_id, order_status, shipped_date, store_id,
+       (SELECT  items.order_id, items.item_id, items.quantity, prods.product_name, items.list_price FROM sales.order_items items
+INNER JOIN production.products prods ON prods.product_id = items.product_id WHERE items.order_id = OS.order_id FOR JSON PATH) orders
+FROM sales.orders OS
 WHERE staff_id = ${requestedId} ORDER BY order_id OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY`, (err, result)=>{
         if (err) {
             console.log("Error occured in query", err);
